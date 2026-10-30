@@ -25,5 +25,5 @@ AirPods で聞き流すためのシステム。
 
 ## 名称について
 
-プロジェクト名は Overheard(2026-10-30 に Zawamimi から改名)。GitHub リポジトリ名とローカルフォルダ名は
-`Zawamimi` のまま(改名は開発者判断)。
+プロジェクト名は Overheard(2026-10-30 に Zawamimi から改名)。GitHub リポジトリは `KentaroTabe/Overheard` に改名済み。ローカルフォルダ名は
+`Zawamimi` のまま(2026-10-30 ユーザー判断)。
