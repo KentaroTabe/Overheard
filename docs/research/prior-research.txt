@@ -1,0 +1,126 @@
+周囲の雑談を学習言語に訳してAirPodsで聞き流すしくみを、「そのまま使えるサービス」「既存サービスの組み合わせ」「ゼロから実装」の3つの視点で調べます。
+
+結論から言うと、**今のところ全部の条件をそのまま満たすサービスはありません**。いちばん近いのはGoogle翻訳の「ライブ翻訳（聞き取りモード）」とAirPodsのライブ翻訳です。「くだけた口調」まで欲しいなら、既存のAPIを組み合わせて自作するのが現実的です。
+
+依頼は「周りで聞こえる日本語の雑談を、学習中の言語の音声に変えてAirPodsで流し続ける。正確さより雑談らしい口調を優先」と理解しました。そのうえで、次の4点で評価しています。
+
+- ①周りの声を拾えるか
+- ②画面を見ずに長く流し続けられるか
+- ③口調をくだけさせられるか
+- ④AirPodsだけで入出力が済むか
+
+---
+
+## 1. そのまま使えるサービス
+
+| サービス | ①集音 | ②連続 | ③口調 | ④AirPods | 言語数 |
+|---|---|---|---|---|---|
+| Google翻訳 ライブ翻訳（聞き取りモード） | ○ | △ | × | ○ | 70以上 |
+| AirPodsのライブ翻訳 | △ | ○ | × | ◎ | 9 |
+| ChatGPT音声モード | △ | △ | ◎ | ○ | 主要言語 |
+
+**Google翻訳のライブ翻訳**
+- iOS版が正式に始まり、提供国も日本・フランス・ドイツ・イギリスなどに広がりました。どのヘッドホンでも使え、70以上の言語に対応しています。
+- 「聞き取り」モードは、主に一人の話し手や一つの音源を理解したいときのための、一方向の翻訳です。
+- 訳した音声には、話し手の口調・強調・リズムが残るとされています。
+- 弱点は、iOSでは画面を開いたままにする必要があることです。画面ロック中も動き続ける機能は、9月時点ではAndroidだけで、iOSは「近日対応」でした。
+- クラウドで処理するのでネット接続が必要で、口調の指定はできません。
+
+**AirPodsのライブ翻訳**
+- 対応言語は日本語・英語・中国語・韓国語・仏独伊西葡の9つで、iPhone 15 Pro以降が必要です。
+- 「相手が話す言語」と「AirPodsで聞く翻訳先の言語」を選ぶ方式です。そのため、相手を日本語、翻訳先を学習言語にすれば、周りの日本語を学習言語で聞く使い方が設定上はできます（Appleが想定している使い方ではありません）。
+- 言語データをダウンロードしたあとは、すべてiPhone内で処理され、ネット接続なしで動きます。
+- 弱点は、対面の会話向けに作られていることです。騒がしい場所ではAirPodsのマイクに加えてiPhoneのマイクも使って精度を上げる設計で、iPhoneを話し手に近づけるよう案内されています。少し離れた雑談はうまく拾えない可能性があります。
+- スペイン語のニュース番組では、BGMが大きくなるまではほぼ問題なく訳せた、という個人の報告があります。
+
+**ChatGPT音声モード（GPT-Live）**
+- 2026年7月8日に新しい音声モデルが出て、指示するだけでライブ翻訳ができるようになりました。全プランで使えます。
+- 「話すことを〇〇語に同時通訳して」と頼むと、話している最中に訳してくれます。
+- 「友だち同士のスラングで」のように**口調を指示できるのはこれだけ**です。ただ、自分の発言を訳す使い方を想定しているので、周りの雑談をどれだけ拾えるか、長時間安定して動くかは未知数です。
+
+**その他**
+- Galaxy AIの通訳には、講義やガイドツアー向けに一方向で訳し続ける「聞き取りモード」があり、条件にはかなり近いです。ただしGalaxy BudsとGalaxyのスマホの組み合わせが必要なので、AirPodsでは使えません。
+- DeepL Voiceは対面の業務会話向けで、今回の用途には合いにくいです。
+
+---
+
+## 2. 既存サービスを組み合わせる場合
+
+処理は「**集音 → 文字起こし → くだけた翻訳 → 音声合成 → 再生**」の5段階に分けられます。真ん中の3段階を、1つのAPIでまとめて処理するか（一体型）、別々のサービスに任せるか（分割型）で、構成が3つに分かれます。
+
+| 構成 | 中身 | 長所 | 短所 |
+|---|---|---|---|
+| **A 一体型の翻訳API** | GPT-Realtime-Translate / Gemini 3.5 Live Translate | いちばん簡単で、遅れが小さい | 口調を指定できない |
+| **B 指示が効く音声AI** | GPT-Realtime-2など＋「訳すだけ、くだけた口調で」という指示 | 1か所で口調まで指定できる | 割高。勝手に返事をする恐れ |
+| **C 分割型** | 文字起こし → LLM（口調を指示）→ 音声合成 | 口調・語彙レベル・字幕まで自由に決められる | 文の切れ目を待つぶん遅れる。つなぐ部分が増える |
+
+**A の部品**
+- GPT-Realtime-Translate（2026年5月公開）は70以上の言語から13言語へ訳し、料金は1分あたり0.034ドル（1時間で約2ドル）です。
+- 出力できる言語には日本語・英語・スペイン語・中国語などが含まれます。元の言語は自動で判別され、区切りを気にせず流しっぱなしで訳し続けます。
+- 別の人が話し始めると訳の声も切り替わるので、雑談向きです。
+- Gemini 3.5 Live Translateは、話し終わりを待たずに訳し続け、元の話者から数秒遅れで音声を返します。公式資料によると、日本語に対応している一方、口調などの指示は受け付けず、背景の雑音は完全には取り除けないとのことです。
+
+**B の料金**
+- GPT-Realtime-2は、音声の入力100万トークンあたり32ドル、出力が64ドルで、Aより高くなります。
+
+**C の部品**
+- 文字起こし：AppleのSpeechAnalyzerは日本語に対応し、端末内だけで動き、長時間の音声も扱えます（無料）。クラウドならGPT-Realtime-Whisperが1分0.017ドルです。
+- 音声合成：gpt-4o-mini-ttsは「どう読むか」を言葉で指示できます。ElevenLabs Flash v2.5は遅れが非常に小さく、32言語に対応しています。
+
+**部品のつなぎ方**
+- iPhoneアプリを作るか、SafariのWebページと小さなサーバーで済ませます。サーバーは、APIキーを隠したまま短時間だけ使える鍵を発行する役目です。
+- ブラウザから使う場合は、サーバーで短期の鍵を発行し、WebRTCで接続する方法が推奨されています。
+
+**マイクについての注意（重要）**
+- AirPodsのマイクは、ビームフォーミングで特定の方向の声に絞り込む仕組みです。Apple自身もライブ翻訳ではiPhoneのマイクを併用しています。
+- そのため、他人のアプリがAirPodsのマイクで周りの雑談を十分に拾えるかは、試してみないと分かりません。「AirPodsのマイク」と「iPhoneのマイクで拾ってAirPodsで聞く」の両方を比べるのが安全です。
+- iOS 26ではAirPods向けに高音質で録音するオプション（bluetoothHighQualityRecording）が追加されましたが、標準の音声モードでしか使えません。
+
+**おすすめの進め方**：まずAで聞き心地を確かめ、口調が物足りなければCに移る、という順番が手堅いです。
+
+---
+
+## 3. ゼロから作る場合
+
+「ゼロから」をどこまでやるかで、3段階に分かれます。
+
+**3-1. アプリだけ自作し、部品はiPhone内蔵の機能を使う**
+- SpeechAnalyzer（文字起こし）→ AppleのTranslation（翻訳）→ AVSpeechSynthesizer（読み上げ）という構成です。
+- 無料でオフラインでも動き、周りの人の声が端末の外に出ません。
+- ただし訳文は標準的な言い回しになります。Appleは、端末内のLLM（Foundation Models）は翻訳には勧めず、Translationを使うよう案内しています。そのため、くだけた口調は出しにくいです。
+
+**3-2. 端末内とクラウドの組み合わせ（個人で作るなら一番おすすめ）**
+- 発話の検出と文字起こしは端末内で行い、文字だけをクラウドのLLMに送ってくだけた訳にしてもらい、それを読み上げます。
+- 送るのが文字だけなので安く、音声を送るよりプライバシーの面でもましです。
+
+**3-3. 翻訳モデルそのものを作る**
+- 参考になるのはKyutaiのHibiki-Zeroです。新しい入力言語は1,000時間未満の音声データで追加できたと報告されています。
+- ただし現状は仏・西・葡・独→英のみで、日本語には対応しておらず、ライセンスも非商用です。データ集めとGPUでの学習が必要な研究規模の取り組みで、個人の聞き流し用途には見合いません。
+
+**作るときに難しい点**
+- **区切り方**：雑談は文が途中で切れたり、人の声が重なったりします。発話区間の検出で区切り、短すぎる断片はまとめて訳すと聞きやすくなります。
+- **画面ロック中の動作**：iOSは、画面ロック後もマイクを使い続けることに厳しい制約があります。自作アプリでは、バックグラウンドでの音声利用を宣言し、画面を開いた状態で録音を始めておく必要があります。
+- **口調の指示（例）**：「Translate into casual spoken [言語] as close friends would say it. Use contractions and natural slang. Keep it short. Output only the line.」のように、口調・短さ・説明を付けないことを明示します。
+- **費用の目安**：一体型（A）で1日2時間流すと、0.034ドル×120分で約4ドル/日、月に約120ドルです。声のない時間を送らないようにすると減らせます。3-2の構成なら、ほぼLLMの文字代だけで済みます。
+- **周りの人への配慮**：周囲の人の声を拾い続けることになるので、端末内で処理し、録音を保存しない作りにしておくのが無難です。
+
+---
+
+まずは、テレビの日本語番組をそれぞれ10分ほど流して、Google翻訳の聞き取りモードとAirPodsのライブ翻訳を聞き比べてみてください。マイクの拾い方と遅れ具合が分かれば、自作が必要かどうかも判断しやすくなります。この内容を手元に残したい場合は、ドキュメントにまとめることもできます。
+
+Sources:
+- [ついに日本語対応、AirPodsの「ライブ翻訳」はどれだけ使える？（PHILE WEB）](https://www.phileweb.com/review/article/202511/09/6260.html)
+- [Use Live Translation with your AirPods（Apple Support）](https://support.apple.com/en-us/123185)
+- [We tested Apple's Live Translation feature（Which?）](https://www.which.co.uk/news/article/we-tested-apples-live-translation-feature-does-it-really-work-aClEt6o0zOut)
+- [Google Translate's live headphone translation feature lands on iOS（9to5Mac）](https://9to5mac.com/2026/03/26/google-translates-live-headphone-translation-feature-lands-on-ios/)
+- [Google Translate rolls out new upgrades for iOS and Android（Google Blog）](https://blog.google/products-and-platforms/products/translate/google-translate-ios-android-upgrades/)
+- [ChatGPT's new GPT-Live voice model（TechRadar）](https://techradar.com/ai-platforms-assistants/chatgpt/breaking-chatgpts-new-gpt-live-voice-model-is-here-and-it-can-speak-and-listen-at-the-same-time)
+- [Advancing voice intelligence with new models in the API（OpenAI）](https://openai.com/index/advancing-voice-intelligence-with-new-models-in-the-api/)
+- [Build a 70-Language Live Voice Agent With GPT-Realtime-Translate（Vantaige）](https://vantaige.io/blog/gpt-realtime-translate-70-language-voice-agent-2026)
+- [Gemini Live API – Live Translation（Google AI for Developers）](https://ai.google.dev/gemini-api/docs/live-api/live-translate)
+- [Google ships Gemini 3.5 Live Translate（Runtime Wire）](https://runtimewire.com/article/google-ships-gemini-3-5-live-translate-across-consumer-enterprise-and-developer-)
+- [SpeechAnalyzerとは？（一創）](https://www.issoh.co.jp/tech/details/8929/)
+- [bluetoothHighQualityRecording（Apple Developer）](https://developer.apple.com/documentation/avfaudio/avaudiosession/categoryoptions-swift.struct/bluetoothhighqualityrecording)
+- [WWDC25 Group Lab – Apple Intelligence（Apple Developer Forums）](https://developer.apple.com/forums/thread/792763)
+- [Hibiki-Zero（Hugging Face）](https://huggingface.co/kyutai/hibiki-zero-3b-pytorch-bf16)
+- [Real-time Interpreter on Galaxy Buds3（Samsung）](https://ushl.samsung.com/ae/support/mobile-devices/what-is-the-real-time-interpreter-feature-on-galaxy-buds3buds3-pro-and-how-does-it-work)

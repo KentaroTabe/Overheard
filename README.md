@@ -1,4 +1,4 @@
-# Zawamimi(ざわ耳)
+# Overheard
 
 周囲で流れている雑談(ざわめき)を、学習したい言語のラフな口語にリアルタイム翻訳して
 AirPods で聞き流すためのシステム。
@@ -17,8 +17,15 @@ AirPods で聞き流すためのシステム。
 - `docs/research/01-existing-services.md` … そのまま使える既存サービスはあるか
 - `docs/research/02-combined-services.md` … 既存サービスの組み合わせで作るならどう切り分けるか
 - `docs/research/03-from-scratch.md` … ゼロから実装するならどう作るか
+- `docs/research/04-device-constraints.md` … 実機(iPhone SE 第 3 世代 + AirPods)で変わる制約と推奨構成の修正
+- `docs/decisions/` … ユーザー判断の記録(日付付き)
+- `docs/planning/` … 計画フェーズの文書(導入・確認チェックリスト)
 - `docs/research/prior-research.txt` … 調査開始前に別の AI が出した先行調査(出典未検証。上記レポートで検証済み)
 
 ## 運用
 
 - `main` は PR 経由で更新する。マージは開発者が行う。
+
+## 名称について
+
+プロジェクト名は Overheard(2026-10-30 に Zawamimi から改名)。GitHub リポジトリとローカルフォルダも Overheard に改名済み(2026-10-30)。
