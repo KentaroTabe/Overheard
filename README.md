@@ -17,6 +17,8 @@ AirPods で聞き流すためのシステム。
 - `docs/research/01-existing-services.md` … そのまま使える既存サービスはあるか
 - `docs/research/02-combined-services.md` … 既存サービスの組み合わせで作るならどう切り分けるか
 - `docs/research/03-from-scratch.md` … ゼロから実装するならどう作るか
+- `docs/research/04-device-constraints.md` … 実機(iPhone SE 第 3 世代 + AirPods)で変わる制約と推奨構成の修正
+- `docs/decisions/` … ユーザー判断の記録(日付付き)
 - `docs/research/prior-research.txt` … 調査開始前に別の AI が出した先行調査(出典未検証。上記レポートで検証済み)
 
 ## 運用
