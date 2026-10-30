@@ -8,3 +8,4 @@
 | Anthropic API キー | 取得済み。入力先が提示されれば入力できる | Mac の PoC は `.env`(`.gitignore` 済み)、iOS アプリは設定画面から Keychain。ソースにハードコードしない。キーはチャット・リポジトリに貼らない |
 | SDK | iOS 26 SDK(Xcode 26.6、macOS 26.5.1)のまま進める | Xcode 27 / macOS 26.6 への更新は不要 |
 | iPhone の iOS | 26 系のまま | PoC 中は iOS 27 に上げない(Xcode 26.6 からのインストール可否が未確認) |
+| Anthropic ワークスペース | 本アプリ専用に分けない(既存キーは他プロジェクトと共有していないため) | 既存キーとそのワークスペースの spend limit($50)をそのまま使う |

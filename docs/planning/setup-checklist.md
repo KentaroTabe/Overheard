@@ -49,7 +49,7 @@ SpeechTranscriber の日本語アセット(ja-JP)は、ユーザーが設定で�
 | 1 | (済)Apple Developer Program | 加入済み | — |
 | 2 | (済)Claude の API キーの置き方 | 個人利用なので、Mac の PoC は `.env`、iOS アプリは設定画面から Keychain。中継サーバーと App Attest は配布するときに再検討 | 決定(2026-10-30) |
 | 3 | (済)iOS 26 SDK(現環境)で進める | Xcode 27 には macOS 26.6 以降が要る。iOS 26 SDK で SpeechTranscriber、Translation、AVSpeechSynthesizer、Background Modes はすべて使える | 決定(2026-10-30) |
-| 4 | Anthropic のワークスペースを本アプリ専用に分けるか | 分ける: 使用量と上限を本アプリ単独で管理できる。分けない: 既存キーをそのまま使える | 分けるのを勧める(他プロジェクトと使用量が混ざらない) |
+| 4 | (済)Anthropic のワークスペースは分けない | 既存キーは他プロジェクトと共有していない | 決定(2026-10-30) |
 
 ## 4. この後の流れ
 
