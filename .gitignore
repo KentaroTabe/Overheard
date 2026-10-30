@@ -1,0 +1,22 @@
+# --- OS / エディタ ---
+.DS_Store
+.vscode/
+.idea/
+
+# --- AI コーディングエージェント向けの指示・記録 (ローカル限定) ---
+CLAUDE.md
+.claude/
+.clinerules
+
+# --- 秘密情報 ---
+.env
+.env.*
+!.env.example
+
+# --- 音声データ・録音物 / 生成物 / ログ ---
+*.wav
+*.m4a
+*.mp3
+*.caf
+recordings/
+logs/
